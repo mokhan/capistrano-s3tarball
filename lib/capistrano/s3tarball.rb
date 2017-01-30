@@ -1,7 +1,7 @@
 require "capistrano/s3tarball/version"
+require "capistrano/s3tarball/plugin"
 
 module Capistrano
   module S3tarball
-    # Your code goes here...
   end
 end
