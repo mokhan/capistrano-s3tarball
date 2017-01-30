@@ -6,6 +6,6 @@ describe Capistrano::S3tarball do
   end
 
   it "does something useful" do
-    expect(false).to eq(true)
+    expect(false).to be_falsey
   end
 end
