@@ -2,7 +2,7 @@ strategy = self
 
 namespace :s3 do
   desc 'Check that the repository is reachable'
-  task :check do
+  task :check => 's3:set_current_revision' do
     on roles(:all) do
       strategy.check
     end
@@ -38,5 +38,10 @@ namespace :s3 do
         strategy.release
       end
     end
+  end
+
+  desc "Determine the revision that will be deployed"
+  task :set_current_revision do
+    set :current_revision, strategy.fetch_revision
   end
 end

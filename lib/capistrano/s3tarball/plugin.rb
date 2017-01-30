@@ -3,11 +3,11 @@ require "capistrano/scm/plugin"
 module Capistrano
   class S3Plugin < ::Capistrano::SCM::Plugin
     def set_defaults
-      set :current_revision, ENV.fetch('BUILD_VERSION', `git ls-remote #{fetch(:git_repo)} #{fetch(:git_branch)}`)[0...7]
-      set :git_repo, ''
-      set :aws_profile, 'default'
-      set :git_branch, ENV['BRANCH']
-      set :bucket_name, ''
+      set :git_repo, ""
+      set :aws_profile, "default"
+      set :git_branch, ENV.fetch("GIT_BRANCH", "master")
+      set :bucket_name, ""
+      set :current_revision, ENV.fetch("BUILD_REVISION", nil)
     end
 
     def define_tasks
@@ -16,6 +16,7 @@ module Capistrano
 
     def register_hooks
       after "deploy:new_release_path", "s3:create_release"
+      before "deploy:set_current_revision", "s3:set_current_revision"
       before "deploy:check", "s3:check"
     end
 
@@ -28,7 +29,7 @@ module Capistrano
     end
 
     def clone
-      backend.execute(:mkdir, '-p', repo_path)
+      backend.execute(:mkdir, "-p", repo_path)
     end
 
     def update
@@ -53,6 +54,10 @@ module Capistrano
     def tarball
       "#{fetch(:application)}-#{fetch(:current_revision)}.tar.gz"
     end
+
+    def fetch_revision
+      command = "git ls-remote #{fetch(:git_repo)} #{fetch(:git_branch)}"
+      @current_revision ||= fetch(:current_revision) || `#{command}`[0...7]
+    end
   end
 end
-
